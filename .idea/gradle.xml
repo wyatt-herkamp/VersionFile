@@ -24,6 +24,7 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/example" />
             <option value="$PROJECT_DIR$/plugin" />
+            <option value="$PROJECT_DIR$/versionfile-api" />
           </set>
         </option>
       </GradleProjectSettings>
