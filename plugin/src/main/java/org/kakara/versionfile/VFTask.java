@@ -74,9 +74,14 @@ public abstract class VFTask extends DefaultTask {
             return null;
         }
         String s = builder.toString();
-        messageDigest.update(s.getBytes(StandardCharsets.UTF_8));
+        System.out.println("s = " + s);
+        messageDigest.update(s.getBytes());
         byte[] digest = messageDigest.digest();
-        return new String(digest);
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < digest.length; i++) {
+            sb.append(Integer.toString((digest[i] & 0xff) + 0x100, 16).substring(1));
+        }
+        return sb.toString();
     }
 
     private static String getFileChecksum(MessageDigest digest, File file) throws IOException {
