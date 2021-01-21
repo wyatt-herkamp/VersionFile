@@ -3,12 +3,14 @@ package org.kakara.versionfile;
 public class VFExtension {
 
     private String classPackage = "";
+    private String jarDirectory = "";
     private String dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'";
     private boolean compileIntoJar = false;
     private boolean addFileParser = false;
-public VFExtension(){
 
-}
+    public VFExtension() {
+
+    }
 
     public VFExtension(String classPackage, String dateFormat, boolean compileIntoJar, boolean addFileParser) {
         this.classPackage = classPackage;
@@ -47,5 +49,13 @@ public VFExtension(){
 
     public void setAddFileParser(boolean addFileParser) {
         this.addFileParser = addFileParser;
+    }
+
+    public void setJarDirectory(String jarDirectory) {
+        this.jarDirectory = jarDirectory;
+    }
+
+    public String getJarDirectory() {
+        return jarDirectory;
     }
 }

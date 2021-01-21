@@ -1,27 +1,32 @@
 package org.kakara.versionfile;
 
+import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.plugins.JavaPluginConvention;
-import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Properties;
 
-public abstract class VFTask extends DefaultTask {
-    public VFTask() {
-        setDescription("Creates the Version File");
+public class VFTask {
+    private VFExtension extension;
+
+    public VFTask(Project project) {
+        extension = project.getExtensions().create("versionFileConfig", VFExtension.class);
+
     }
 
 
-    @TaskAction
-    public void createFile() {
-        File buildDir = getProject().getBuildDir();
+
+    //    @TaskAction
+    public void createFile(Project target) {
+        File buildDir = target.getBuildDir();
         File propertiesFile = new File(buildDir, "version.properties");
         try {
             propertiesFile.createNewFile();
@@ -29,7 +34,7 @@ public abstract class VFTask extends DefaultTask {
             e.printStackTrace();
         }
         Properties properties = new Properties();
-        properties.setProperty("src.hash", hash());
+        properties.setProperty("src.hash", hash(target));
         FileWriter fileWriter = null;
         try {
             fileWriter = new FileWriter(propertiesFile);
@@ -44,11 +49,36 @@ public abstract class VFTask extends DefaultTask {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+
+        if (extension.isCompileIntoJar()) {
+            String directory = extension.getJarDirectory();
+
+            File file = new File(target.getBuildDir().getAbsolutePath() + File.separator + "resources" + File.separator + "main" + File.separator + directory);
+            if (!file.exists()) file.mkdirs();
+            File version = new File(file, "version.properties");
+            try {
+                fileWriter = new FileWriter(version);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (fileWriter == null) {
+                return;
+            }
+            try {
+                System.out.println("getProject().getBuildDir().getAbsolutePath() = " + target.getBuildDir().getAbsolutePath());
+                properties.store(fileWriter, null);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+
     }
 
-    public String hash() {
+    public String hash(Project project) {
         StringBuilder builder = new StringBuilder();
-        getProject().getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().forEach(sourceSet -> {
+        project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().forEach(sourceSet -> {
             sourceSet.getAllSource().forEach(file -> {
                 MessageDigest messageDigest;
                 try {

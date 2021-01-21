@@ -12,7 +12,9 @@ repositories {
     mavenCentral()
     jcenter()
 }
-
+versionFileConfig {
+    isCompileIntoJar = true;
+}
 tasks {
     "jar"{
         dependsOn(project.tasks.getByName("vftask"));
