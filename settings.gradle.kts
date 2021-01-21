@@ -7,6 +7,5 @@ pluginManagement {
 }
 
 rootProject.name = ("VersionFile")
-
-include("plugin")
 include("example")
+includeBuild("plugin")

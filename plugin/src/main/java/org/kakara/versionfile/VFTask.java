@@ -6,6 +6,7 @@ import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -29,6 +30,20 @@ public abstract class VFTask extends DefaultTask {
         }
         Properties properties = new Properties();
         properties.setProperty("src.hash", hash());
+        FileWriter fileWriter = null;
+        try {
+            fileWriter = new FileWriter(propertiesFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (fileWriter == null) {
+            return;
+        }
+        try {
+            properties.store(fileWriter, null);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public String hash() {

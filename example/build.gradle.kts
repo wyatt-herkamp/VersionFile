@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("org.kakara.versionfile") version "1.0-SNAPSHOT"
 
 }
 
@@ -12,5 +13,8 @@ repositories {
     jcenter()
 }
 
-
-
+tasks {
+    "jar"{
+        dependsOn(project.tasks.getByName("vftask"));
+    }
+}
