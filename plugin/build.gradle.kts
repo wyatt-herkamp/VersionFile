@@ -26,7 +26,8 @@ gradlePlugin {
 
 pluginBundle {
     vcsUrl = "https://github.com/kakaragame/VersionFile"
-    description = ""
+    website = "https://github.com/kakaragame/VersionFile"
+    description = "Generates a Version File from your source"
     tags = listOf("version")
 
     plugins {
@@ -45,3 +46,4 @@ buildscript {
         classpath("com.gradle.publish:plugin-publish-plugin:0.12.0")
     }
 }
+apply(plugin = "com.gradle.plugin-publish")

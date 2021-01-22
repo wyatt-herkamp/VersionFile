@@ -1,15 +1,9 @@
 package org.kakara.versionfile;
 
-import org.gradle.api.Action;
-import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 import org.gradle.api.plugins.JavaPluginConvention;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Properties;
@@ -23,7 +17,6 @@ public class VFTask {
     }
 
 
-
     //    @TaskAction
     public void createFile(Project target) {
         File buildDir = target.getBuildDir();
@@ -35,6 +28,18 @@ public class VFTask {
         }
         Properties properties = new Properties();
         properties.setProperty("src.hash", hash(target));
+        File git = new File(".git");
+        if (git.exists()) {
+            //Use Git code :)
+            try {
+                properties.setProperty("git.commit.hash", execCmd("git rev-parse HEAD"));
+                properties.setProperty("git.commit.branch", execCmd("git rev-parse --abbrev-ref HEAD"));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        properties.setProperty("build.time", String.valueOf(System.currentTimeMillis()));
+        properties.setProperty("version", target.getVersion().toString());
         FileWriter fileWriter = null;
         try {
             fileWriter = new FileWriter(propertiesFile);
@@ -142,5 +147,10 @@ public class VFTask {
 
         //return complete hash
         return sb.toString();
+    }
+
+    public static String execCmd(String cmd) throws java.io.IOException {
+        java.util.Scanner s = new java.util.Scanner(Runtime.getRuntime().exec(cmd).getInputStream()).useDelimiter("\\A");
+        return s.hasNext() ? s.next() : "";
     }
 }
