@@ -2,7 +2,7 @@ remote_theme: pmarsceill/just-the-docs
 title: VersionFile
 description: VersionFile documentation
 url: "https://kakara.org"
-baseurl: "/versionfile/"
+baseurl: "/VersionFile/"
 aux_links:
   "Kakara Home":
     - "https://kakara.org"
