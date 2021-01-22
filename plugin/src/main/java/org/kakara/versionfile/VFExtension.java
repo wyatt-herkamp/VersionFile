@@ -1,10 +1,14 @@
 package org.kakara.versionfile;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class VFExtension {
 
     private String jarDirectory = "";
     private String dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'";
     private boolean compileIntoJar = false;
+    private Map<String, String> customValues = new HashMap<>();
 
     public VFExtension() {
 
@@ -39,5 +43,13 @@ public class VFExtension {
 
     public String getJarDirectory() {
         return jarDirectory;
+    }
+
+    public Map<String, String> getCustomValues() {
+        return customValues;
+    }
+
+    public void setCustomValues(Map<String, String> customValues) {
+        this.customValues = customValues;
     }
 }

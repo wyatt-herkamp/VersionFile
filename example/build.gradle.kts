@@ -14,6 +14,7 @@ repositories {
 }
 versionFileConfig {
     isCompileIntoJar = true;
+    customValues["custom.key"] = "true";
 }
 tasks {
     "jar"{

@@ -3,9 +3,13 @@ package org.kakara.versionfile;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.JavaPluginConvention;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Map;
 import java.util.Properties;
 
 public class VFTask {
@@ -40,6 +44,11 @@ public class VFTask {
         }
         properties.setProperty("build.time", String.valueOf(System.currentTimeMillis()));
         properties.setProperty("version", target.getVersion().toString());
+        if (extension.getCustomValues() != null) {
+            for (Map.Entry<String, String> entry : extension.getCustomValues().entrySet()) {
+                properties.setProperty(entry.getKey(), entry.getValue());
+            }
+        }
         FileWriter fileWriter = null;
         try {
             fileWriter = new FileWriter(propertiesFile);
