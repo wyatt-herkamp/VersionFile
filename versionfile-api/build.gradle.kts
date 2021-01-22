@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "org.kakara.versionfile"
-version = "1.0-SNAPSHOT"
+version = "1.0.0-SNAPSHOT"
 val artifactName = "api"
 
 java {
