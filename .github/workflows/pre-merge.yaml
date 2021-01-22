@@ -31,6 +31,8 @@ jobs:
         with:
           path: ~/.gradle/wrapper/
           key: cache-gradle-wrapper
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
       - name: Run Gradle tasks
         run: ./gradlew preMerge --continue
 
