@@ -1,6 +1,6 @@
 plugins {
     id("java")
-    id("org.kakara.versionfile") version "1.0-SNAPSHOT"
+    id("org.kakara.versionfile") version "1.0.0"
 
 }
 
