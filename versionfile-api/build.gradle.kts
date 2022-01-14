@@ -5,8 +5,8 @@ plugins {
     signing
 }
 
-group = "org.kakara.versionfile"
-version = "1.0.0-SNAPSHOT"
+group = "me.kingtux.versionfile"
+version = "1.0.0"
 val artifactName = "api"
 
 java {
@@ -39,8 +39,8 @@ publishing {
     repositories {
         maven {
 
-            val releasesRepoUrl = uri("https://repo.kingtux.me/storages/maven/kakara")
-            val snapshotsRepoUrl = uri("https://repo.kingtux.me/storages/maven/kakara")
+            val releasesRepoUrl = uri("https://repo.kingtux.me/storages/maven/kingtux-repo")
+            val snapshotsRepoUrl = uri("https://repo.kingtux.me/storages/maven/kingtux-repo")
             url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
             credentials(PasswordCredentials::class)
         }

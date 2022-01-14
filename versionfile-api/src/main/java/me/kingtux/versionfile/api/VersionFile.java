@@ -1,4 +1,4 @@
-package org.kakara.versionfile.api;
+package me.kingtux.versionfile.api;
 
 import java.io.IOException;
 import java.io.InputStream;

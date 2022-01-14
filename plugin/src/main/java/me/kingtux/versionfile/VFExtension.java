@@ -1,4 +1,4 @@
-package org.kakara.versionfile;
+package me.kingtux.versionfile;
 
 import java.util.HashMap;
 import java.util.Map;

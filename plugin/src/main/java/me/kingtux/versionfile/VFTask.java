@@ -1,4 +1,4 @@
-package org.kakara.versionfile;
+package me.kingtux.versionfile;
 
 import org.gradle.api.Project;
 import org.gradle.api.plugins.JavaPluginConvention;

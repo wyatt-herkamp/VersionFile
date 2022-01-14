@@ -5,8 +5,8 @@ plugins {
     id("java-gradle-plugin")
 }
 
-group = "org.kakara"
-version = "1.0.0-SNAPSHOT"
+group = "me.kingtux"
+version = "1.0.0"
 
 repositories {
     google()
@@ -16,22 +16,22 @@ repositories {
 
 gradlePlugin {
     plugins {
-        create("org.kakara.versionfile") {
-            id = "org.kakara.versionfile"
-            implementationClass = "org.kakara.versionfile.VFMain"
+        create("me.kingtux.versionfile") {
+            id = "me.kingtux.versionfile"
+            implementationClass = "me.kingtux.versionfile.VFMain"
             version = "1.0.0-SNAPSHOT"
         }
     }
 }
 
 pluginBundle {
-    vcsUrl = "https://github.com/kakaragame/VersionFile"
-    website = "https://github.com/kakaragame/VersionFile"
+    vcsUrl = "https://github.com/wherkamp/VersionFile"
+    website = "https://github.com/wherkamp/VersionFile"
     description = "Generates a Version File from your source"
     tags = listOf("version")
 
     plugins {
-        getByName("org.kakara.versionfile") {
+        getByName("me.kingtux.versionfile") {
             displayName = "VersionFile"
         }
     }
