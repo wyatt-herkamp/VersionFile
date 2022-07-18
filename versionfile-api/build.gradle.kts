@@ -37,13 +37,15 @@ publishing {
         }
     }
     repositories {
-        maven {
-            val releasesRepoUrl = uri("https://repo.kingtux.me/storages/maven/kingtux-repo")
-            val snapshotsRepoUrl = uri("https://repo.kingtux.me/storages/maven/kingtux-repo")
-            url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
+        val releasesRepoUrl = uri("https://repo.kingtux.me/storages/maven/kingtux-repo")
+        val snapshotsRepoUrl = uri("https://repo.kingtux.me/storages/maven/kingtux-repo")
+        val url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
+        maven(url) {
             credentials(PasswordCredentials::class)
+            name = "kingtuxrepo"
         }
         mavenLocal()
+
     }
 }
 

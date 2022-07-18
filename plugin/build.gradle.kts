@@ -1,34 +1,37 @@
 plugins {
-    id("java-gradle-plugin")
     java
     `java-library`
     `maven-publish`
     signing
+    kotlin("jvm") version "1.7.10"
+
 }
 
-group = "me.kingtux"
-version = "1.0.0"
-
+group = "me.kingtux.versionfile"
+version = "2.0.0-SNAPSHOT"
+sourceSets.main {
+    java.srcDirs("src/main/myJava", "src/main/myKotlin")
+}
+kotlin {
+    jvmToolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
 repositories {
     google()
     mavenCentral()
 }
 
-gradlePlugin {
-    plugins {
-        create("me.kingtux.versionfile") {
-            id = "me.kingtux.versionfile"
-            implementationClass = "me.kingtux.versionfile.VFMain"
-            version = "1.0.0-SNAPSHOT"
-        }
-    }
-}
+dependencies {
+    compileOnly(gradleApi())
 
+}
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
-
-            artifactId = "version-file"
+            val baseName = project.group.toString();
+            groupId = baseName
+            artifactId = "$baseName.gradle.plugin"
             from(components["java"])
             versionMapping {
                 usage("java-api") {
@@ -38,17 +41,16 @@ publishing {
                     fromResolutionResult()
                 }
             }
-            pom {
-                name.set("Version File")
-            }
+            withoutBuildIdentifier()
         }
     }
     repositories {
-        maven {
-            val releasesRepoUrl = uri("https://repo.kingtux.me/storages/maven/kingtux-repo")
-            val snapshotsRepoUrl = uri("https://repo.kingtux.me/storages/maven/kingtux-repo")
-            url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
+        val releasesRepoUrl = uri("https://repo.kingtux.me/storages/maven/kingtux-repo")
+        val snapshotsRepoUrl = uri("https://repo.kingtux.me/storages/maven/kingtux-repo")
+        val url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
+        maven(url) {
             credentials(PasswordCredentials::class)
+            name = "kingtuxrepo"
         }
         mavenLocal()
     }

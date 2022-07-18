@@ -1,165 +1,124 @@
-package me.kingtux.versionfile;
+package me.kingtux.versionfile
 
-import org.gradle.api.Project;
-import org.gradle.api.plugins.JavaPluginConvention;
+import org.gradle.api.Project
+import org.gradle.api.plugins.JavaPluginConvention
+import org.gradle.api.tasks.SourceSet
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileWriter
+import java.io.IOException
+import java.security.MessageDigest
+import java.security.NoSuchAlgorithmException
+import java.util.*
+import java.util.function.Consumer
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Map;
-import java.util.Properties;
+class VFTask(project: Project) {
+    private val extension: VFExtension
 
-public class VFTask {
-    private VFExtension extension;
-
-    public VFTask(Project project) {
-        extension = project.getExtensions().create("versionFileConfig", VFExtension.class);
-
+    init {
+        extension = project.extensions.create("versionFileConfig", VFExtension::class.java)
     }
 
-
-    //    @TaskAction
-    public void createFile(Project target) {
-        File buildDir = target.getBuildDir();
-        File propertiesFile = new File(buildDir, "version.properties");
+    fun createFile(target: Project) {
+        val buildDir = target.buildDir
+        val propertiesFile = File(buildDir, "version.properties")
         try {
-            propertiesFile.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
+            propertiesFile.createNewFile()
+        } catch (e: IOException) {
+            e.printStackTrace()
         }
-        Properties properties = new Properties();
-        properties.setProperty("src.hash", hash(target));
-        File git = new File(".git");
+        val properties = Properties()
+        properties.setProperty("src.hash", hash(target))
+        val git = File(".git")
         if (git.exists()) {
             //Use Git code :)
             try {
-                properties.setProperty("git.commit.hash", execCmd("git rev-parse HEAD"));
-                properties.setProperty("git.commit.branch", execCmd("git rev-parse --abbrev-ref HEAD"));
-            } catch (Exception e) {
-                e.printStackTrace();
+                properties.setProperty("git.commit.hash", execCmd("git rev-parse HEAD"))
+                properties.setProperty("git.commit.branch", execCmd("git rev-parse --abbrev-ref HEAD"))
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
-        properties.setProperty("build.time", String.valueOf(System.currentTimeMillis()));
-        properties.setProperty("version", target.getVersion().toString());
-        if (extension.getCustomValues() != null) {
-            for (Map.Entry<String, String> entry : extension.getCustomValues().entrySet()) {
-                properties.setProperty(entry.getKey(), entry.getValue());
-            }
-        }
-        FileWriter fileWriter = null;
+        properties.setProperty("build.time", System.currentTimeMillis().toString())
+        properties.setProperty("version", target.version.toString())
+        var fileWriter: FileWriter? = null
         try {
-            fileWriter = new FileWriter(propertiesFile);
-        } catch (IOException e) {
-            e.printStackTrace();
+            fileWriter = FileWriter(propertiesFile)
+        } catch (e: IOException) {
+            e.printStackTrace()
         }
         if (fileWriter == null) {
-            return;
+            return
         }
         try {
-            properties.store(fileWriter, null);
-        } catch (IOException e) {
-            e.printStackTrace();
+            properties.store(fileWriter, null)
+        } catch (e: IOException) {
+            e.printStackTrace()
         }
-
-
-        if (extension.isCompileIntoJar()) {
-            String directory = extension.getJarDirectory();
-
-            File file = new File(target.getBuildDir().getAbsolutePath() + File.separator + "resources" + File.separator + "main" + File.separator + directory);
-            if (!file.exists()) file.mkdirs();
-            File version = new File(file, "version.properties");
-            try {
-                fileWriter = new FileWriter(version);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            if (fileWriter == null) {
-                return;
+        if (extension.isCompileIntoJar) {
+            val directory = extension.jarDirectory
+            val file =
+                File(target.buildDir.absolutePath + File.separator + "resources" + File.separator + "main" + File.separator + directory)
+            if (!file.exists()) file.mkdirs()
+            val version = File(file, "version.properties")
+            val fileWriter: FileWriter? = try {
+                FileWriter(version)
+            } catch (e: IOException) {
+                e.printStackTrace(); null
             }
             try {
-                System.out.println("getProject().getBuildDir().getAbsolutePath() = " + target.getBuildDir().getAbsolutePath());
-                properties.store(fileWriter, null);
-            } catch (IOException e) {
-                e.printStackTrace();
+                properties.store(fileWriter, null)
+            } catch (e: IOException) {
+                e.printStackTrace()
             }
-
         }
-
     }
 
-    public String hash(Project project) {
-        StringBuilder builder = new StringBuilder();
-        project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().forEach(sourceSet -> {
-            sourceSet.getAllSource().forEach(file -> {
-                MessageDigest messageDigest;
-                try {
-                    messageDigest = MessageDigest.getInstance("SHA-256");
-                } catch (NoSuchAlgorithmException e) {
-                    e.printStackTrace();
-                    return;
-                }
-                try {
-                    builder.append(getFileChecksum(messageDigest, file));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return;
-                }
-            });
-        });
-
-        MessageDigest messageDigest;
-        try {
-            messageDigest = MessageDigest.getInstance("SHA-256");
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            return null;
+    private fun hash(project: Project): String? {
+        val builder = StringBuilder()
+        val messageDigest: MessageDigest = try {
+            MessageDigest.getInstance("SHA-256")
+        } catch (e: NoSuchAlgorithmException) {
+            e.printStackTrace()
+            return null
         }
-        String s = builder.toString();
-        System.out.println("s = " + s);
-        messageDigest.update(s.getBytes());
-        byte[] digest = messageDigest.digest();
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < digest.length; i++) {
-            sb.append(Integer.toString((digest[i] & 0xff) + 0x100, 16).substring(1));
+        project.convention.getPlugin(JavaPluginConvention::class.java).sourceSets.forEach(Consumer { sourceSet: SourceSet ->
+            sourceSet.allSource.forEach(Consumer { file: File ->
+                builder.append(getFileChecksum(messageDigest, file))
+            })
+        })
+        val s = builder.toString()
+        println("s = $s")
+        messageDigest.update(s.toByteArray())
+        val digest = messageDigest.digest()
+        val sb = StringBuilder()
+        for (i in digest.indices) {
+            sb.append(((digest[i].toInt() and 0xff) + 0x100).toString(16).substring(1))
         }
-        return sb.toString();
+        return sb.toString()
     }
 
-    private static String getFileChecksum(MessageDigest digest, File file) throws IOException {
-        //Get file input stream for reading the file content
-        FileInputStream fis = new FileInputStream(file);
-
-        //Create byte array to read data in chunks
-        byte[] byteArray = new byte[1024];
-        int bytesCount = 0;
-
-        //Read file data and update in message digest
-        while ((bytesCount = fis.read(byteArray)) != -1) {
-            digest.update(byteArray, 0, bytesCount);
+    companion object {
+        private fun getFileChecksum(digest: MessageDigest, file: File): String {
+            val fis = FileInputStream(file)
+            val byteArray = ByteArray(1024)
+            var bytesCount: Int
+            while (fis.read(byteArray).also { bytesCount = it } != -1) {
+                digest.update(byteArray, 0, bytesCount)
+            }
+            fis.close()
+            val bytes = digest.digest()
+            val sb = StringBuilder()
+            for (i in bytes.indices) {
+                sb.append(((bytes[i].toInt() and 0xff) + 0x100).toString(16).substring(1))
+            }
+            return sb.toString()
         }
 
-        //close the stream; We don't need it now.
-        fis.close();
-
-        //Get the hash's bytes
-        byte[] bytes = digest.digest();
-
-        //This bytes[] has bytes in decimal format;
-        //Convert it to hexadecimal format
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < bytes.length; i++) {
-            sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
+        @Throws(IOException::class)
+        fun execCmd(cmd: String?): String {
+            val s = Scanner(Runtime.getRuntime().exec(cmd).inputStream).useDelimiter("\\A")
+            return if (s.hasNext()) s.next() else ""
         }
-
-        //return complete hash
-        return sb.toString();
-    }
-
-    public static String execCmd(String cmd) throws java.io.IOException {
-        java.util.Scanner s = new java.util.Scanner(Runtime.getRuntime().exec(cmd).getInputStream()).useDelimiter("\\A");
-        return s.hasNext() ? s.next() : "";
     }
 }
