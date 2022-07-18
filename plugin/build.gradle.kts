@@ -1,8 +1,9 @@
 plugins {
-    id("java")
-    id("java-library")
-    id("com.gradle.plugin-publish") version "0.12.0"
     id("java-gradle-plugin")
+    java
+    `java-library`
+    `maven-publish`
+    signing
 }
 
 group = "me.kingtux"
@@ -11,7 +12,6 @@ version = "1.0.0"
 repositories {
     google()
     mavenCentral()
-    jcenter()
 }
 
 gradlePlugin {
@@ -24,26 +24,33 @@ gradlePlugin {
     }
 }
 
-pluginBundle {
-    vcsUrl = "https://github.com/wherkamp/VersionFile"
-    website = "https://github.com/wherkamp/VersionFile"
-    description = "Generates a Version File from your source"
-    tags = listOf("version")
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
 
-    plugins {
-        getByName("me.kingtux.versionfile") {
-            displayName = "VersionFile"
+            artifactId = "version-file"
+            from(components["java"])
+            versionMapping {
+                usage("java-api") {
+                    fromResolutionOf("runtimeClasspath")
+                }
+                usage("java-runtime") {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name.set("Version File")
+            }
         }
     }
-}
-buildscript {
     repositories {
         maven {
-            url = uri("https://plugins.gradle.org/m2/")
+            val releasesRepoUrl = uri("https://repo.kingtux.me/storages/maven/kingtux-repo")
+            val snapshotsRepoUrl = uri("https://repo.kingtux.me/storages/maven/kingtux-repo")
+            url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
+            credentials(PasswordCredentials::class)
         }
-    }
-    dependencies {
-        classpath("com.gradle.publish:plugin-publish-plugin:0.12.0")
+        mavenLocal()
     }
 }
-apply(plugin = "com.gradle.plugin-publish")
+

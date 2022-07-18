@@ -38,7 +38,6 @@ publishing {
     }
     repositories {
         maven {
-
             val releasesRepoUrl = uri("https://repo.kingtux.me/storages/maven/kingtux-repo")
             val snapshotsRepoUrl = uri("https://repo.kingtux.me/storages/maven/kingtux-repo")
             url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
@@ -57,7 +56,6 @@ tasks.javadoc {
 repositories {
     maven("https://repo.maven.apache.org/maven2/")
     mavenLocal()
-
 }
 
 dependencies {
