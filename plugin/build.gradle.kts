@@ -3,7 +3,7 @@ plugins {
     `java-library`
     `maven-publish`
     signing
-    kotlin("jvm") version "1.7.10"
+    kotlin("jvm") version "1.8.0"
 
 }
 
